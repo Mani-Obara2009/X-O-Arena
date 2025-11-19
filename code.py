@@ -1,6 +1,9 @@
+# Importing the library random
 import random
 
+# defining functions
 def show_board(game_board): 
+    """This function is used to show the current situation of the board"""
     col_width = max(len(str(x)) for row in game_board for x in row)
 
     top =    "┌" + "┬".join("─"*(col_width+2) for _ in game_board[0]) + "┐"
@@ -14,11 +17,12 @@ def show_board(game_board):
     print(bottom)
 
 def choice_maker(game_board, role):
+    """This function is used for the player to make choices"""
     while True:
         try:
-            choice = int(input("Enter the block you want to place your move in (1–9) : "))
+            choice = int(input("Enter the block you want to place your move in (1-9) : "))
         except ValueError:
-            print("Please enter a valid integer.")
+            print("Please enter a valid integer. (1-9)")
             continue
 
         if not 1 <= choice <= 9:
@@ -35,10 +39,11 @@ def choice_maker(game_board, role):
             continue
 
         game_board[row][col] = role
-        return  # success
+        return role # success
 
 
 def next_move(board , count , robot_role):
+    """This function is the algorithm for the robot to choose a block to mark"""
     if robot_role == "X": 
         if count == 0: 
             board[0][0] = "X"
@@ -49,6 +54,7 @@ def next_move(board , count , robot_role):
                 board[2][0] = "X"
     return board
 def count(game_board):
+    """It count how many X's and O's are on the board"""
     counter = 0 
     for row in game_board: 
         for item in row: 
@@ -57,6 +63,7 @@ def count(game_board):
     return counter
 
 def game(): 
+    """This function will run the game"""
     roles = ["O" , "X"]
     game_status = None
     game_role = random.choice(roles)

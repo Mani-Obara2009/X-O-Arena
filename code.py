@@ -51,12 +51,11 @@ def next_move(board , count , robot_role):
                 board[2][0] = "X"
     return board
 def count(game_board):
-    """It count how many X's and O's are on the board"""
-    counter = 0 
-    for row in game_board: 
-        for item in row: 
-            if item != "X" or item != "O": 
-                counter += 1 
+    counter = 0
+    for row in game_board:
+        for item in row:
+            if item in ("X", "O"):
+                counter += 1
     return counter
 
 def game(): 
@@ -71,20 +70,29 @@ def game():
         [7 , 8 , 9]
     ]
     print(f"You are playing as '{game_role}'")
-    if game_role == "X": 
-         while game_status == None: 
-            show_board(game_board)
-            game_board = choice_maker(game_board , game_role)
-            show_board(game_board)
-            game_board = next_move(game_board , turn_counter , "X" if game_role == "O" else "O")
+    if game_role == "X":
+        while game_status is None:
             show_board(game_board)
 
-    if game_role == "O": 
-        print("Your opponent is the one who starts the game ...")
-        while game_status == None:
-            game_board = next_move(game_board , turn_counter , "X" if game_role == "O" else "O")
+            game_board = choice_maker(game_board, game_role)
+
+            turn_counter += 1
+            game_board = next_move(game_board, turn_counter, "O")
+
             show_board(game_board)
+
+
+    if game_role == "O":
+        print("Your opponent is the one who starts the game ...")
+
+        while game_status is None:
+            game_board = next_move(game_board, turn_counter, "X")
+            show_board(game_board)
+
             game_board = choice_maker(game_board, game_role)
             show_board(game_board)
+
+            turn_counter += 1
+
 
 print(game())

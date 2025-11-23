@@ -71,6 +71,10 @@ class Game:
             self.easy_mode()
         elif difficulty == 2:
             self.inter_mode()
+        elif difficulty == 3: 
+            self.hard_mode()
+        elif difficulty == 4: 
+            self.impossible_mode()
         
 
     # ---------------- Winner Check --------------------
@@ -139,7 +143,16 @@ class Game:
     # ---------------- Main Game Loop --------------------
     def play(self):
         """This function puts all of the other functions together and makes the game alive"""
+        # Choose the player's and robot's symbol randomly
+        self.player = random.choice(["X" , "O"])
+        self.robot = "X" if self.player == "O" else "O"
+        # Inform the player about their symbol and if they start the game
+        print(f"You are playing as '{self.player}'")
+        if self.player == "O":
+            print("Your opponent starts the game...")
+
         # Take the difficulty level from the user and call the correct function
+        # We will know which difficulty is the player intrested in playing after this part
         while True: 
             try:
                 difficulty = int(input("Choose a difficulty (1:Easy-2:Intermediate-3:Hard-4:Impossible): "))
@@ -151,45 +164,53 @@ class Game:
             except ValueError:
                 print("Something was wrong about your input's value. Note that only integer from 1 to 4 is allowed and Please try again")
         
-        # choose player's and robot's symbols randomly and inform the user
-        self.player = random.choice(["O", "X"])
-        self.robot = "X" if self.player == "O" else "O"
-        print(f"You are playing as '{self.player}'")
-        if self.player == "O":
-            print("Your opponent starts the game...")
-        
         # showing the user the initial board
         self.show_board()
         
-        while True:
-            # X's turn
-            if self.robot == "X":
-                self.next_move(self.difficulty)
+        """Define the initial game status to None (It can be changed to the winner's symbol later with
+        the output of the function check winner or it can be "Tie")"""
+        status = None
+
+        # Game's main loop
+        if self.player == "X":
+            while status == None:
+                # Player turn
+                self.choice_maker()
                 self.show_board()
-                result 
-            try: 
-                row = int(input("Enter row (up to down ==> 1-3)")) - 1
-                column = int(input("Enter column (left to right ==> 1-3)")) - 1
+                status = self.check_winner()
+                if status:
+                    break
 
-                if row not in (0 , 1 , 2) or column not in (0 , 1 , 2): 
-                    print("Coordinates must be between 1 and three")
-                    continue
-                if self.board[row][column] != " ":
-                    print("Cell already taken. Try again.")
-                break
-            except ValueError: 
-                print("Enter valid numbers.")
-            
-            self.board[row][column] = self.player
-            self.show_board()
+                # Robot turn
+                print("Robot's turn:")
+                self.next_move(difficulty)
+                self.show_board()
+                status = self.check_winner()
 
-            result = self.check_winner()
-            if result:
-                print(f"Winner: {result}")
-                break
-            elif result == None:
-                print("Game ended: Draw")
-                break
+        # IF the player's symbol is O
+        else:
+            print("Robot starts the game!")
+            while status is None:
+                # Robot goes first
+                print("Robot's turn:")
+                self.next_move(difficulty)
+                self.show_board()
+                status = self.check_winner()
+                if status:
+                    break
+
+                # Player turn
+                self.choice_maker()
+                self.show_board()
+                status = self.check_winner()
+
+    # -----------------------------
+    # End game output
+    # -----------------------------
+        if status == "Tie":
+            print("It's a tie!")
+        else:
+            print(f"The winner is: {status}")
 
 # ---------------- Run Game --------------------
 if __name__ == "__main__":

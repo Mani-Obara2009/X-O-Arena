@@ -2,9 +2,10 @@ import random
 
 class Game:
     def __init__(self):
-        self.board = [[" " for i in range(3)] for i in range(3)]
-        self.player = None
-        self.robot = None
+        self.board = [[" " , " " , " "] , [" " , " " , " "] , [" " , " " , " "]]
+        self.player = "O"
+        self.robot = "X"
+        self.turn = None
 
     # ---------------- Display Board --------------------
     def show_board(self):
@@ -52,10 +53,12 @@ class Game:
                     return
     
     def inter_mode(self):
-        """The AI model for the intermediate level of the game."""
-        if self.one_move_win(self.player):
-            coor = self.one_move_win(self.player)
-            self.board[coor[0],coor[1]] = self.player
+        """The AI model for the intermediate level of the game. turn : X or O, is necessery for it to work"""
+        move = self.one_move_win(self.turn)
+        if move:
+            r, c = move
+            self.board[r][c] = self.turn
+            return
     
     def hard_mode(self): 
         """The AI model for the hard level of the game"""
@@ -67,7 +70,7 @@ class Game:
 
     # ---------------- Robot Move (simple) --------------------
     def next_move(self , difficulty):
-        """Puts together all of the algorithms and run one of them when needed."""
+        """Puts together all of the algorithms and run one of them when needed. the parameter turn is needed (X or O)"""
         if self.difficulty == 1 :
             self.easy_mode()
         elif difficulty == 2:
@@ -101,7 +104,7 @@ class Game:
         return None
 
     # ---------------- Game Evaluator --------------------
-    def game_eval(self, turn):
+    def game_eval(self):
         """Evaluates the game and returns 1 if X has won or can win in only one move and it is his turn 
         (and O can't do anything about it) and -1, if this is happening with O and 0 if the game is ongoing and
         none of the conditions are true."""
@@ -121,14 +124,16 @@ class Game:
         )
 
         for line in lines:
-            if line.count("X") == 2 and line.count(" ") == 1 and turn == "X":
+            if line.count("X") == 2 and line.count(" ") == 1 and self.turn == "X":
                 return 1
-            if line.count("O") == 2 and line.count(" ") == 1 and turn == "O":
+            if line.count("O") == 2 and line.count(" ") == 1 and self.turn == "O":
                 return -1
         # if none worked :
         return 0
      
     def one_move_win(self, symbol):
+        """Returns a tuple in which the first index is the row and the second index is the column where
+        if you mark you will instantly win and if there is no move which win instantly it will return None"""
         # Try every empty cell
         for i in range(3):
             for j in range(3):
@@ -176,6 +181,7 @@ class Game:
         if self.player == "X":
             while status == None:
                 # Player turn
+                self.turn = "X"
                 self.choice_maker()
                 self.show_board()
                 status = self.check_winner()
@@ -184,6 +190,7 @@ class Game:
 
                 # Robot turn
                 print("Robot's turn:")
+                self.turn = "O"
                 self.next_move(difficulty)
                 self.show_board()
                 status = self.check_winner()
@@ -194,6 +201,7 @@ class Game:
             while status is None:
                 # Robot goes first
                 print("Robot's turn:")
+                self.turn = "X"
                 self.next_move(difficulty)
                 self.show_board()
                 status = self.check_winner()
@@ -201,6 +209,7 @@ class Game:
                     break
 
                 # Player turn
+                self.turn = "O"
                 self.choice_maker()
                 self.show_board()
                 status = self.check_winner()

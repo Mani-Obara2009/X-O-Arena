@@ -2,9 +2,9 @@ import random
 
 class Game:
     def __init__(self):
-        self.board = [[" " , " " , " "] , [" " , " " , " "] , [" " , " " , " "]]
-        self.player = "O"
-        self.robot = "X"
+        self.board = [[" " for i in range(3)] for i in range(3)]
+        self.player = None
+        self.robot = None
         self.turn = None
 
     # Display board
@@ -21,6 +21,15 @@ class Game:
                 print(middle)
         print(bottom)
 
+    # Reades all the lines diagonal and horizontal and vertical
+    def get_lines(self):
+        """Reades all of the lines : diagonal - horizontal - vertical"""
+        return (
+            self.board +
+            [list(col) for col in zip(*self.board)] +
+            [[self.board[i][i] for i in range(3)]] +
+            [[self.board[i][2-i] for i in range(3)]])
+    
     # Player move
     def choice_maker(self):
         while True:
@@ -44,6 +53,7 @@ class Game:
 
             self.board[row][col] = self.player
             return
+        
     def easy_mode(self): # Powered by TMC 1.0 Lite
         """AI model for the easy level of the game"""
         for i in range(3):
@@ -52,13 +62,33 @@ class Game:
                     self.board[i][j] = self.robot
                     return
     
-    def inter_mode(self): # Powered by TMC 1.0 I (Under development)
+    def inter_mode(self): # Powered by TMC 1.0 I
         """The AI model for the intermediate level of the game. turn : X or O, is necessery for it to work"""
-        move = self.one_move_win(self.turn)
+        # Attack
+        move = self.one_move_win()
         if move:
             r, c = move
             self.board[r][c] = self.turn
             return
+        # Defense
+        opponent = "X" if self.turn == "O" else "O"
+        lines = self.get_lines()
+        line_coords = [
+            [(i, j) for j in range(3)] for i in range(3)                 # rows
+        ] + [
+            [(i, j) for i in range(3)] for j in range(3)                 # columns
+        ] + [
+            [(i, i) for i in range(3)]                                   # main diagonal
+        ] + [
+            [(i, 2-i) for i in range(3)]                                 # anti diag
+        ]
+        for line, coords in zip(lines, line_coords):
+            if line.count(opponent) == 2 and line.count(" ") == 1:
+                idx = line.index(" ")
+                r, c = coords[idx]
+                self.board[r][c] = self.turn
+                return
+        self.easy_mode()
     
     def hard_mode(self): # Powered by TMC 1.0 Pro (Under development)
         """The AI model for the hard level of the game"""
@@ -69,15 +99,15 @@ class Game:
         pass
 
     # Robot move (Powered by "TMC 1.0")
-    def next_move(self , difficulty):
+    def next_move(self):
         """Puts together all of the algorithms and run one of them when needed. the parameter turn is needed (X or O)"""
         if self.difficulty == 1 :
             self.easy_mode()
-        elif difficulty == 2:
+        elif self.difficulty == 2:
             self.inter_mode()
-        elif difficulty == 3: 
+        elif self.difficulty == 3: 
             self.hard_mode()
-        elif difficulty == 4: 
+        elif self.difficulty == 4: 
             self.impossible_mode()
         
 
@@ -85,15 +115,8 @@ class Game:
     def check_winner(self):
         """Checks if one side has won (Returns X if X is won and O if O is won) and None if
         no side won"""
-        lines = (
-            self.board +
-            [list(col) for col in zip(*self.board)] +
-            [[self.board[i][i] for i in range(3)]] +
-            [[self.board[i][2 - i] for i in range(3)]]
-        )
-
         # Winner detection
-        for line in lines:
+        for line in self.get_lines():
             if line[0] in ("X", "O") and line.count(line[0]) == 3:
                 return line[0]
 
@@ -115,14 +138,7 @@ class Game:
         if winner == "Tie" or winner is None:
             return 0
 
-        lines = (
-            self.board +
-            [list(col) for col in zip(*self.board)] +
-            [[self.board[i][i] for i in range(3)]] +
-            [[self.board[i][2-i] for i in range(3)]]
-        )
-
-        for line in lines:
+        for line in self.lines:
             if line.count("X") == 2 and line.count(" ") == 1 and self.turn == "X":
                 return 1
             if line.count("O") == 2 and line.count(" ") == 1 and self.turn == "O":
@@ -130,15 +146,15 @@ class Game:
         # if none worked :
         return 0
      
-    def one_move_win(self, symbol):
+    def one_move_win(self):
         """Returns a tuple in which the first index is the row and the second index is the column where
         if you mark you will instantly win and if there is no move which win instantly it will return None"""
         # Try every empty cell
         for i in range(3):
             for j in range(3):
                 if self.board[i][j] == " ":
-                    self.board[i][j] = symbol
-                    if self.check_winner() == symbol:
+                    self.board[i][j] = self.turn
+                    if self.check_winner() == self.turn:
                         self.board[i][j] = " "
                         return (i, j)
                     self.board[i][j] = " "
@@ -190,7 +206,7 @@ class Game:
                 # Robot turn
                 print("Robot's turn:")
                 self.turn = "O"
-                self.next_move(difficulty)
+                self.next_move()
                 self.show_board()
                 status = self.check_winner()
 
@@ -201,7 +217,7 @@ class Game:
                 # Robot goes first
                 print("Robot's turn:")
                 self.turn = "X"
-                self.next_move(difficulty)
+                self.next_move()
                 self.show_board()
                 status = self.check_winner()
                 if status:

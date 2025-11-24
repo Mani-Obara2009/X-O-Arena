@@ -9,17 +9,36 @@ class Game:
 
     # Display board
     def show_board(self):
+        # Build main board
         col_width = max(len(str(x)) for row in self.board for x in row)
-        top = "┌" + "┬".join("─"*(col_width+2) for _ in self.board[0]) + "┐"
-        middle = "├" + "┼".join("─"*(col_width+2) for _ in self.board[0]) + "┤"
-        bottom = "└" + "┴".join("─"*(col_width+2) for _ in self.board[0]) + "┘"
+        top = "┌" + "┬".join("─"*(col_width+2) for _ in range(3)) + "┐"
+        middle = "├" + "┼".join("─"*(col_width+2) for _ in range(3)) + "┤"
+        bottom = "└" + "┴".join("─"*(col_width+2) for _ in range(3)) + "┘"
 
-        print(top)
-        for i, row in enumerate(self.board):
-            print("│ " + " │ ".join(str(x).ljust(col_width) for x in row) + " │")
+        # Build reference board (constant)
+        ref = [
+            ["1","2","3"],
+            ["4","5","6"],
+            ["7","8","9"]
+        ]
+
+        # Draw header
+        print("Current Board:".ljust(30) + "Reference Board:")
+
+        # Print top borders
+        print(top.ljust(30) + top)
+
+        # Print rows side-by-side
+        for i in range(3):
+            left_row = "│ " + " │ ".join(str(x).ljust(col_width) for x in self.board[i]) + " │"
+            right_row = "│ " + " │ ".join(ref[i]) + " │"
+            print(left_row.ljust(30) + right_row)
+
             if i < 2:
-                print(middle)
-        print(bottom)
+                print(middle.ljust(30) + middle)
+
+        # Bottom borders
+        print(bottom.ljust(30) + bottom)
 
     # Reades all the lines diagonal and horizontal and vertical
     def get_lines(self):
@@ -93,10 +112,10 @@ class Game:
     def hard_mode(self): # Powered by TMC 1.0 Pro (Under development)
         """The AI model for the hard level of the game"""
         pass
-    
+        
     def impossible_mode(self): # The most powerful model powered by TMC 1.0 Max (Under development)
         """The AI model for impoossible level of the game"""
-        pass
+        
 
     # Robot move (Powered by "TMC 1.0")
     def next_move(self):
